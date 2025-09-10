@@ -177,30 +177,6 @@ reviewer --output-format markdown --show-stats
 ```
 
 
-## 🔌 MCP Integration (Claude Desktop)
-
-**Model Context Protocol** integration enables seamless code reviews within Claude Desktop:
-
-```json
-{
-  "mcpServers": {
-    "reviewer": {
-      "command": "reviewer-mcp"
-    }
-  }
-}
-```
-
-**Benefits of MCP Integration**:
-- **Native Claude Access**: Use code review tools directly in Claude conversations  
-- **Unified Workflow**: No context switching between tools
-- **Rich Interaction**: Claude can ask follow-up questions about findings
-- **Combined Analysis**: Leverage both CodeReviewer's navigation + Claude's reasoning
-
-**Available MCP Tools**:
-- `review_changes` - Full code review with intelligent navigation
-- `list_review_sessions` - Session management
-- `manage_review_service` - Service control and logs
 
 ## Technical Requirements
 
