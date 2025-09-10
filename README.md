@@ -37,6 +37,10 @@ Unlike tools that dump entire codebases to AI (hitting token limits and wasting 
 - **Prototype Mode**: Focuses on functionality, deprioritizes security for rapid iteration
 - **Full Mode**: Comprehensive feedback including style and optimization suggestions
 
+### 🔌 **MCP Server**
+- Available as MCP server for Claude Desktop integration (`reviewer-mcp`)
+- Enables code review tools directly within Claude conversations
+
 ## Architecture
 
 CodeReviewer uses a three-stage intelligent navigation approach:
