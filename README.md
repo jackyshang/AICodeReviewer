@@ -17,13 +17,13 @@ reviewer
 ### 🧠 **Intelligent Code Navigation**
 Unlike tools that dump entire codebases to AI (hitting token limits and wasting money), CodeReviewer uses AST-based indexing and dependency graph traversal:
 - **Precision**: Only reads files actually related to your changes
-- **Scalability**: Works on 10-file or 10,000-file projects equally well
+- **Smart Filtering**: Navigates through code relationships, not file proximity
 - **Cost Efficiency**: 90% token reduction compared to traditional approaches
 
 ### 📊 **Performance Benefits**
 - **90% cost reduction** compared to full-context approaches
 - **10x faster** analysis through intelligent navigation
-- **Unlimited scalability** - works on any codebase size
+- **Efficient navigation** - reads only relevant files regardless of project size
 
 ### 🔄 **Session Persistence with Memory**
 - Maintains full conversation context across multiple review iterations
@@ -81,7 +81,7 @@ Result: Comprehensive cross-file impact analysis
 
 ## Real-World Impact
 
-**Scenario**: Authentication system change in large codebase
+**Scenario**: Authentication system change in medium-sized codebase
 
 **Traditional Approach**: Sends entire codebase → hits token limits → incomplete analysis
 **CodeReviewer**: Navigates intelligently → reads only 8 relevant files → finds critical cross-file bugs
