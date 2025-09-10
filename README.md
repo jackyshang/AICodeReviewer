@@ -39,7 +39,9 @@ Unlike tools that dump entire codebases to AI (hitting token limits and wasting 
 
 ### 🔌 **MCP Server**
 - Available as MCP (Model Context Protocol) server (`reviewer-mcp`)
-- Enables code review tools in any MCP-compatible client
+- **5 Tools**: `review_changes`, `list_review_sessions`, `manage_review_service`, `get_session_details`, `clear_session`
+- **2 Resources**: Active sessions list, configuration
+- **4 Prompts**: Comprehensive, security, performance, and quick review templates
 
 ## Architecture
 
