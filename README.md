@@ -1,536 +1,65 @@
-# CodeReviewer - AI-Powered Code Review Tool
+# CodeReviewer
 
-**Version**: 0.1.0  
-**Platform**: macOS/Linux/Windows Terminal Application  
-**Language**: Python 3.8+  
-**Current Scope**: Local uncommitted changes & GitHub PRs  
-**Supported Providers**: Google Gemini (2.5 Pro/Flash, 2.0 Flash), Claude (via MCP)
+AI-powered code review tool using Google Gemini for intelligent, context-aware analysis of uncommitted changes.
 
-## Quick Installation
+## Quick Start
 
 ```bash
-# Clone and install
-git clone https://github.com/yourusername/CodeReviewer.git
-cd CodeReviewer
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Install
+git clone https://github.com/jackyshang/AICodeReviewer.git
+cd AICodeReviewer
 pip install -e .
 
 # Set API key
 export GEMINI_API_KEY="your-api-key-here"
-# Or create a .env file with: GEMINI_API_KEY=your-api-key-here
 
 # Run review
 reviewer
-
-# For MCP integration with Claude Desktop
-reviewer-mcp
 ```
 
-## 1. Executive Summary
+## Features
 
-CodeReviewer is an AI-powered command-line tool that performs intelligent code reviews on local uncommitted changes and GitHub PRs. It uses advanced AI models (primarily Google Gemini) to provide categorized feedback with severity levels, session persistence for iterative development, and integrates with Claude Desktop via MCP (Model Context Protocol).
+- **Intelligent Navigation** - Only reads relevant files by following imports and dependencies
+- **Session Persistence** - Maintains conversation history across multiple reviews
+- **Multiple Review Modes** - Critical-only, full review, AI-generated detection, prototype mode
+- **Rate Limiting** - Built-in compliance with API tier limits
+- **MCP Integration** - Works with Claude Desktop
+- **Cost Efficient** - Uses 80-90% fewer tokens than traditional approaches
 
-### Key Features
-- 🔍 **Intelligent Navigation**: AI-driven code exploration that follows imports and dependencies
-- 💾 **Session Persistence**: Maintains conversation history across multiple reviews
-- 🎯 **Multiple Review Modes**: Critical-only, full review, AI-generated code detection, prototype mode
-- 🚀 **Rate Limiting**: Built-in rate limiting for API tier compliance
-- 🔌 **MCP Integration**: Works seamlessly with Claude Desktop
-- ⚡ **Fast & Efficient**: Token-optimized navigation reduces costs by 80-90%
+## How It Works
 
-### 1.1 Design Principles
-- **MVP Simplicity**: Gemini handles everything in one conversation
-- **Context Preservation**: Single conversation maintains full context
-- **Always Actionable**: Every review categorizes issues by severity
-- **Clear Priorities**: Critical issues vs. suggestions
-- **Future Ready**: Architecture allows expansion to multi-AI
-- **Test Driven**: TDD/BDD methodology
+Instead of sending your entire codebase to the AI (expensive and often exceeds token limits), CodeReviewer uses intelligent navigation:
 
-### 1.2 Current Status (v0.1.0)
-- ✅ **Implemented**: Local changes review with Gemini
-- ✅ **Implemented**: Session persistence with conversation history
-- ✅ **Implemented**: MCP server for Claude Desktop integration
-- ✅ **Implemented**: Rate limiting for API tier compliance
-- ✅ **Implemented**: Multiple review modes (critical, full, ai-generated, prototype)
-- ✅ **Implemented**: Service management for background operation
-- 🚧 **In Progress**: GitHub PR support
-- 📋 **Planned**: Multi-AI provider support
+1. **Builds an index** of your code structure (classes, functions, imports)
+2. **Starts with changed files** from `git diff`
+3. **Follows dependencies** by exploring imports and usages
+4. **Reviews with context** using only relevant files
 
-## 2. MVP Architecture
+Example: In a 500-file project, reviewing one file change typically reads only 5-10 relevant files.
 
-### 2.1 MVP Approach: AI-Driven Navigation
-- **Single AI**: Gemini navigates and reviews intelligently
-- **On-Demand File Access**: AI requests files as needed
-- **Smart Navigation**: Provides codebase map and indices
-- **Tool-Based Interaction**: Gemini uses tools to explore code
-- **Efficient Token Usage**: Only loads relevant files
 
-### 2.2 AI Navigation Strategy
+## Configuration
 
-```
-┌─────────────────────────────────────────────────────┐
-│          Gemini with Navigation Tools                │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  Initial Context Provided:                          │
-│  • Project file tree structure                      │
-│  • Class/Interface → File mapping                   │
-│  • Method → File mapping                            │
-│  • Changed files list                               │
-│                                                     │
-│  Available Tools for Gemini:                        │
-│  • read_file(path) → Returns file content          │
-│  • search_symbol(name) → Finds declarations        │
-│  • find_usages(symbol) → Finds where used          │
-│  • get_imports(file) → Lists file dependencies     │
-│                                                     │
-│  Gemini's Review Process:                           │
-│  1. Examines changed files                          │
-│  2. Requests related files as needed               │
-│  3. Follows import chains                          │
-│  4. Checks test coverage                           │
-│  5. Provides comprehensive review                   │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-```
-
-### 2.3 Why AI Navigation is Superior
-
-**Traditional Approach** (send all files):
-- Wastes tokens on irrelevant files
-- Can hit token limits quickly
-- No intelligent exploration
-- Slower processing
-
-**AI Navigation Approach** (MVP):
-- Only reads what's necessary
-- Follows logical code paths
-- Mimics human code review
-- Scales to any project size
-- More cost effective
-
-### 2.4 Example Navigation Flow
-
-```
-Gemini: "I see auth.py was modified. Let me check its imports."
-→ read_file("src/auth/auth.py")
-
-Gemini: "This imports UserService. Let me examine that."
-→ read_file("src/services/user_service.py")
-
-Gemini: "The auth change affects login(). Let me find its usages."
-→ find_usages("login")
-
-Gemini: "Found 3 callers. Let me check if they handle the new exception."
-→ read_file("src/api/login_endpoint.py")
-→ read_file("src/cli/auth_commands.py")
-→ read_file("tests/test_auth.py")
-
-Gemini: "I should verify the test coverage for this change."
-→ read_file("tests/test_auth.py")
-
-Result: Targeted review with only 6 files read instead of 200+
-```
-
-## 3. MVP Implementation
-
-### 3.1 Core Workflow
-
-```
-$ llm-review
-
-1. Detect Changes
-   └─> git diff --name-only
-   
-2. Build Codebase Index
-   └─> Generate file tree structure
-   └─> Create symbol → file mappings
-   └─> Index class/interface/method locations
-   
-3. Start Gemini Conversation with Tools
-   └─> Provide codebase map
-   └─> Enable navigation functions
-   
-4. AI-Driven Review Process
-   └─> Gemini examines changed files
-   └─> Navigates to related code as needed
-   └─> Builds understanding incrementally
-   └─> Requests only relevant files
-   
-5. Generate Comprehensive Review
-   └─> Based on targeted exploration
-   └─> Includes cross-file impacts
-   └─> Suggests improvements
-   
-6. Format Output
-   └─> Display results with navigation path
-```
-
-### 3.2 Navigation Tools for Gemini
-
-**Tool Suite**:
-```python
-# Tools available to Gemini during review
-
-def read_file(filepath: str) -> str:
-    """Read and return file content"""
-    
-def search_symbol(symbol_name: str) -> List[Location]:
-    """Find where a class/function/variable is defined"""
-    
-def find_usages(symbol_name: str) -> List[Location]:
-    """Find all places where symbol is used"""
-    
-def get_imports(filepath: str) -> List[str]:
-    """Get all imports from a file"""
-    
-def get_file_tree() -> str:
-    """Get project structure as tree"""
-    
-def search_text(pattern: str) -> List[Match]:
-    """Search for text pattern across codebase"""
-```
-
-### 3.3 Example: AI Navigation in Action
-
-**Initial Context Provided**:
-```
-Project Structure:
-├── src/
-│   ├── auth/
-│   │   ├── auth.py (CHANGED)
-│   │   └── tokens.py
-│   ├── services/
-│   │   ├── user_service.py
-│   │   └── email_service.py
-│   └── api/
-│       └── endpoints.py
-└── tests/
-    └── test_auth.py
-
-Symbol Index:
-- class AuthManager → src/auth/auth.py:15
-- class UserService → src/services/user_service.py:8  
-- def login() → src/auth/auth.py:45
-- def verify_token() → src/auth/tokens.py:12
-```
-
-**Gemini's Navigation**:
-```
-[Turn 1] "I'll start by examining the changed file"
-> read_file("src/auth/auth.py")
-
-[Turn 2] "The login method now throws a new exception. Let me check who calls it"
-> find_usages("login")
-Returns: ["src/api/endpoints.py:78", "tests/test_auth.py:23"]
-
-[Turn 3] "Let me verify the API endpoint handles this new exception"
-> read_file("src/api/endpoints.py")
-
-[Turn 4] "The endpoint doesn't handle the new SecurityException. Let me check if there's a global handler"
-> search_symbol("SecurityException")
-> read_file("src/exceptions.py")
-
-[Turn 5] "Now let me ensure tests cover this new behavior"
-> read_file("tests/test_auth.py")
-```
-
-### 3.4 Benefits of AI Navigation
-
-1. **Efficient Token Usage**: Only reads ~5-10 files instead of 100+
-2. **Intelligent Exploration**: Follows logical code relationships
-3. **Scalable**: Works on any size codebase
-4. **Better Insights**: Focuses on actually related code
-5. **Cost Effective**: 10x fewer tokens than full dump
-6. **Human-Like Review**: Mimics how developers navigate code
-
-### 3.5 Codebase Indexing Process
-
-**What Gets Indexed** (Fast, <2 seconds):
-```
-1. File Tree Structure
-   project/
-   ├── src/
-   │   ├── auth/ (3 files)
-   │   ├── services/ (8 files)
-   │   └── api/ (5 files)
-   └── tests/ (12 files)
-
-2. Symbol → Location Mapping
-   {
-     "classes": {
-       "AuthManager": "src/auth/auth.py:15",
-       "UserService": "src/services/user.py:8",
-       "APIRouter": "src/api/router.py:22"
-     },
-     "functions": {
-       "login": ["src/auth/auth.py:45", "src/api/endpoints.py:78"],
-       "validate_token": "src/auth/tokens.py:23"
-     }
-   }
-
-3. Import Dependencies
-   src/api/endpoints.py → imports from:
-     - src/auth/auth.py
-     - src/services/user.py
-     - src/utils/validators.py
-
-4. Test → Source Mapping
-   tests/test_auth.py → tests → src/auth/auth.py
-   tests/test_user.py → tests → src/services/user.py
-```
-
-**How Gemini Uses the Index**:
-1. Starts with changed files from index
-2. Uses symbol map to find definitions
-3. Follows import graph for dependencies
-4. Locates tests via test mapping
-5. Explores only what's needed
-
-**Indexing Technologies**:
-- AST parsing for accurate symbol extraction
-- Incremental updates (only reindex changed files)
-- Language-specific parsers (Python, JS, Java, etc.)
-- Cached between runs for speed
-
-### 3.6 Why This Beats Simple Rules
-
-**Rule-Based Approach**: "Always include files in same directory"
-- Includes irrelevant files
-- Misses important dependencies
-- Wastes tokens
-
-**AI Navigation**: "Let me follow the actual code flow"
-- Traces real dependencies
-- Understands architecture
-- Optimal token usage
-
-## 4. Configuration
-
-### 4.1 MVP Configuration
+Create `.reviewer.yaml` in your project root:
 
 ```yaml
-# .llm-review.yaml
 review:
-  # MVP uses Gemini for everything
-  provider: gemini-1.5-pro
-  mode: ai_navigation  # Let AI explore codebase
+  provider: gemini-2.5-pro
+  mode: critical  # critical, full, ai-generated, prototype
   
-  navigation:
-    # What indices to build
-    build_indices:
-      - file_tree: true
-      - symbol_map: true  # class/function → file
-      - import_graph: true
-      - test_mapping: true  # test → source file
+gemini_settings:
+  api_key_env: GEMINI_API_KEY
+  rate_limiting:
+    enabled: true
+    tier: tier1  # Free tier limits
     
-    # Navigation boundaries
-    exploration_limits:
-      max_files_per_review: 50  # Prevent runaway
-      max_depth: 10  # Import chain depth
-      timeout_seconds: 300
-    
-    # File filters
-    include_patterns:
-      - "**/*.py"
-      - "**/*.js" 
-      - "**/*.java"
-      - "**/*.go"
-      - "**/*.ts"
-      
-    exclude_patterns:
-      - "**/node_modules/**"
-      - "**/__pycache__/**"
-      - "**/venv/**"
-      - "**/.git/**"
-      - "**/dist/**"
-      
-  gemini_settings:
-    api_key_env: GEMINI_API_KEY
-    temperature: 0.7
-    tools_enabled: true  # Enable function calling
-    rate_limiting:
-      enabled: true  # Enable rate limiting (default: true)
-      tier: tier1    # API tier (tier1 = free tier)
-    
-  output:
-    format: markdown
-    show_navigation_path: true  # Show which files AI explored
-    show_token_usage: true
-    show_cost: true
+output:
+  format: markdown
+  show_navigation_path: true
 ```
 
-### 4.2 Future Configuration (Post-MVP)
 
-```yaml
-# Future: After MVP
-review:
-  providers:
-    context: gemini      # Could stay Gemini
-    reviewers:          # Could add others
-      - gpt-4
-      - claude
-    next_steps: gemini  # Could be collaborative
-```
-
-## 5. Technical Specifications
-
-### 5.1 Codebase Indexing
-
-**Pre-Review Index Generation**:
-```python
-CodebaseIndex:
-├── FileTree
-│   └── Hierarchical structure for navigation
-├── SymbolIndex  
-│   ├── Classes → File:Line mapping
-│   ├── Functions → File:Line mapping
-│   └── Methods → File:Line mapping
-├── ImportGraph
-│   └── File → Dependencies mapping
-└── TestMapping
-    └── Test file → Source file relationships
-
-Example Index:
-{
-  "symbols": {
-    "AuthManager": "src/auth/auth.py:15",
-    "UserService": "src/services/user.py:8",
-    "login": "src/auth/auth.py:45",
-    "validate_token": "src/auth/tokens.py:23"
-  },
-  "imports": {
-    "src/auth/auth.py": ["src/services/user.py", "src/utils/crypto.py"],
-    "src/api/endpoints.py": ["src/auth/auth.py", "src/services/user.py"]
-  }
-}
-```
-
-### 5.2 Token Economics with Navigation
-
-**Efficiency Comparison**:
-
-| Approach | Files Read | Tokens Used | Cost | Quality |
-|----------|------------|-------------|------|---------|
-| Full Dump (small) | 50 | 200K | $0.05 | Good |
-| Full Dump (medium) | 200 | 800K | $0.20 | Good |
-| Full Dump (large) | 500+ | >1M | N/A | Can't do |
-| **AI Navigation** | 5-15 | 50K | $0.01 | Excellent |
-
-**Cost Benefits**:
-- 80-90% token reduction
-- Works on any size codebase
-- Better focused insights
-- Faster response times
-
-### 5.3 Domain Model
-
-```
-Review Session (MVP)
-├── Codebase Index
-│   ├── File Tree
-│   ├── Symbol Map
-│   ├── Import Graph
-│   └── Test Mapping
-├── Navigation Tools
-│   ├── read_file()
-│   ├── search_symbol()
-│   ├── find_usages()
-│   └── get_imports()
-├── Gemini Conversation
-│   ├── Initial Context (index + changes)
-│   ├── Navigation Decisions
-│   ├── File Explorations
-│   └── Review Generation
-└── Output
-    ├── Issues Found
-    ├── Navigation Path
-    ├── Recommendations
-    └── Token Usage Report
-```
-
-### 5.4 Implementation Approach
-
-**Index Generation** (Fast, <2 seconds):
-```python
-# Use AST parsing for accuracy
-# Cache results between runs
-# Incremental updates for speed
-
-def build_symbol_index(project_root):
-    """Build symbol → file:line mapping"""
-    index = {}
-    for file in get_source_files(project_root):
-        ast_tree = parse_file(file)
-        for node in walk_ast(ast_tree):
-            if is_definition(node):
-                index[node.name] = f"{file}:{node.line}"
-    return index
-```
-
-**Tool Implementation**:
-```python
-# Gemini calls these during review
-def read_file(filepath: str) -> str:
-    """Read file content with safety checks"""
-    if not is_safe_path(filepath):
-        return "Error: Invalid path"
-    return read_text_file(filepath)
-
-def find_usages(symbol: str) -> List[str]:
-    """Find where symbol is used"""
-    # Use grep/ripgrep for speed
-    results = search_codebase(symbol)
-    return format_results(results)
-```
-
-## 6. Testing Strategy
-
-### 6.1 TDD Approach
-
-1. **Unit Tests**
-   - Git operations
-   - Prompt construction
-   - Response parsing
-   - Output formatting
-
-2. **Integration Tests**
-   - Full conversation flow
-   - Error scenarios
-   - Large diff handling
-
-3. **BDD Scenarios**
-   ```gherkin
-   Feature: AI-Driven Code Navigation Review
-     
-     Scenario: Review with intelligent navigation
-       Given I have uncommitted changes in auth.py
-       And the project has 250 files
-       When I run llm-review
-       Then Gemini should build a codebase index
-       And Gemini should start by reading auth.py
-       And Gemini should navigate to related files
-       And Gemini should read fewer than 20 files total
-       And the review should find cross-file impacts
-       
-     Scenario: Large project navigation
-       Given I have a project with 5000 files
-       When I run llm-review
-       Then indexing should complete in under 5 seconds
-       And Gemini should navigate efficiently
-       And token usage should be under 50K
-       
-     Scenario: Navigation with missing dependencies
-       Given I have changes that import a missing module
-       When Gemini tries to navigate to the import
-       Then it should report the missing dependency
-       And continue reviewing other aspects
-   ```
-
-## 7. CLI Interface
-
-### 7.1 Available Commands
+## CLI Usage
 
 ```bash
 # Basic review
