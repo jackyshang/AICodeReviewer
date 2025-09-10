@@ -1,0 +1,29 @@
+review:
+  provider: gemini-2.5-pro
+  mode: ai_navigation
+  navigation:
+    max_files_per_review: 50
+    max_depth: 10
+    timeout_seconds: 300
+  output:
+    format: markdown
+    show_navigation_path: true
+    show_token_usage: true
+    show_cost: true
+  
+  # Custom exclude patterns for .NET projects
+  exclude_patterns:
+    - "bin/"
+    - "obj/"
+    - "*.dll"
+    - "*.pdb"
+    - "*.exe"
+    - "TestResults/"
+    - "*.user"
+    - "*.suo"
+    - ".vs/"
+    - "packages/"
+    - "*.nupkg"
+    - "*.cache"
+    - "_ReSharper*"
+    - "*.dotCover"

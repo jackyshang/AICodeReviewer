@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "reviewer": {
+      "command": "python",
+      "args": ["-m", "reviewer.mcp_server"],
+      "cwd": "/path/to/pr-reviewer",
+      "env": {
+        "REVIEWER_SERVICE_URL": "http://localhost:8765"
+      }
+    }
+  }
+}

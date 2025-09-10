@@ -1,0 +1,12 @@
+review:
+  provider: gemini-2.5-flash-preview-05-20  # Use Flash for faster testing
+  mode: ai_navigation
+  navigation:
+    max_files_per_review: 5  # Limit files for testing
+    max_depth: 3
+    timeout_seconds: 60
+  output:
+    format: markdown
+    show_navigation_path: true
+    show_token_usage: true
+    show_cost: true
