@@ -100,17 +100,15 @@ Create `.reviewer.yaml` in your project root:
 ```yaml
 review:
   provider: gemini-2.5-pro
-  mode: critical  # critical, full, ai-generated, prototype
-  
-gemini_settings:
-  api_key_env: GEMINI_API_KEY
-  rate_limiting:
-    enabled: true
-    tier: tier1  # Free tier limits
-    
-output:
-  format: markdown
-  show_navigation_path: true
+  mode: ai_navigation
+  navigation:
+    max_files_per_review: 50
+    max_depth: 10
+    timeout_seconds: 300
+  output:
+    format: markdown
+    show_navigation_path: true
+    show_token_usage: true
 ```
 
 
