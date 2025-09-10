@@ -38,8 +38,8 @@ Unlike tools that dump entire codebases to AI (hitting token limits and wasting 
 - **Full Mode**: Comprehensive feedback including style and optimization suggestions
 
 ### 🔌 **MCP Server**
-- Available as MCP server for Claude Desktop integration (`reviewer-mcp`)
-- Enables code review tools directly within Claude conversations
+- Available as MCP (Model Context Protocol) server (`reviewer-mcp`)
+- Enables code review tools in any MCP-compatible client
 
 ## Architecture
 
